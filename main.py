@@ -1,25 +1,29 @@
 import pygame
 
 
-class Snake:
-    def __init__(self):
+class Board:
+    def __init__(self, game_mode="city"):
         self.rows = 20
         self.columns = 18
-        self.img_board = [pygame.image.load("imagens/tab-grass0.png"), pygame.image.load("imagens/tab-grass1.png")]
+        if game_mode == "city":
+            self.img_board = [pygame.image.load("imagens/city/board/board-street-light.png"), pygame.image.load("imagens/city/board/board-street-dark.png")]
 
     def create_window(self, width, height, bg_color="#14F5CC"):
-        pygame.init()
+        try:
+            pygame.init()
+        except:
+            print('Não foi possível iniciar o módulo PYGAME')
+            return 'ERRO'
         self.screen = pygame.display.set_mode((width, height))
         self.window_size = [width, height]
         self.screen.fill(bg_color)
         pygame.display.update()
 
     def create_board(self, pos_board):
-
-        pygame.draw.line(self.screen, "#000000", (30, 75), (475, 75), 15)       # Desenha a linha horizonal superior
-        pygame.draw.line(self.screen, "#000000", (25, 70), (25, 575), 15)       # Desenha a linha vertical esquerda
-        pygame.draw.line(self.screen, "#000000", (20, 575), (475, 575), 15)     # Desenha a linha horizonal inferior
-        pygame.draw.line(self.screen, "#000000", (475, 70), (475, 575), 15)      # Desenha a linha vertical direita
+        pygame.draw.line(self.screen, "#000000", (20, 75), (480, 75), 10)       # Desenha a linha horizonal superior
+        pygame.draw.line(self.screen, "#000000", (25, 70), (25, 575), 10)       # Desenha a linha vertical esquerda
+        pygame.draw.line(self.screen, "#000000", (20, 575), (480, 575), 10)     # Desenha a linha horizonal inferior
+        pygame.draw.line(self.screen, "#000000", (475, 70), (475, 580), 10)      # Desenha a linha vertical direita
 
         size_square = [25, 25]      # Define o tamanho de cada casa
 
@@ -44,30 +48,25 @@ class Snake:
         pygame.display.update()
 
 
-game = Snake()
+class Player:
+    def __init__(self, player_type):
+        if player_type == 'TRUCK':
+            self.first_part = {'RIGTH': pygame.image.load("imagens/city/caminhao/truck_right.png"),
+                               'LEFT': pygame.image.load("imagens/city/caminhao/truck_left.png")}
+            self.midlle_part = {'RIGTH': pygame.image.load("imagens/city/caminhao/trailer_right.png"),
+                                'LEFT': pygame.image.load("imagens/city/caminhao/trailer_left.png")}
+            self.last_part = {'RIGTH': pygame.image.load("imagens/city/caminhao/trailer-last_right.png"),
+                              'LEFT': pygame.image.load("imagens/city/caminhao/trailer-last_left.png")}
 
-game.create_window(500, 600, bg_color="#14F5CC")
-game.create_board((25, 75))
-pygame.time.wait(100000)
 
 
 
 
-"""# Imagens
-tab_grass_light = py.image.load("imagens/tab-grass0.png")
-tab_grass_dark = py.image.load("imagens/tab-grass1.png")
+while True:
 
-tab_grass_light = py.transform.scale(tab_grass_light, (50, 50))
-tab_grass_dark = py.transform.scale(tab_grass_dark, (50, 50))
+        game = Board()
 
-# Inicia o pygame
-py.init()
-screen = py.display.set_mode((500, 500))
+        game.create_window(500, 600, bg_color="#14F5CC")
+        game.create_board((25, 75))
 
-# Cria o tabuleiro
-for row in range(0, 10):
-    screen.blit(tab_grass_light, ())
-screen.blit(tab_grass_dark, (200, 100))
-
-py.display.update()
-py.time.wait(10000)"""
+        pygame.time.wait(10000)
