@@ -40,6 +40,7 @@ class Player:
         self.position = [5, 5]
         self.player_length = 2
         self.direction = ''
+        self.list_positions = []
 
         self.size_board_pixels = 350
         self.size_board_squares = 10
@@ -107,11 +108,13 @@ class Player:
 
     def move(self, board, direction):
 
+        # Confere se a direção recebida é válida
         available_directions = ['UP', 'DOWN', 'RIGHT', 'LEFT']
         if direction not in available_directions:
             print("DIREÇÃO INVÁLIDA.")
             return False
 
+        # atualiza a nova posição do player baseado na direção recebida
         if direction == 'UP':
             self.position = (self.position[0], self.position[1] - 1)
         elif direction == 'DOWN':
@@ -124,23 +127,26 @@ class Player:
         player = self.player_length
         position = self.position
 
-        """if position[0] < 0:
+        # confere se o player esté dentro do tabuleiro
+        if position[0] < 0:
             self.position = (self.size_board_squares, self.position[1])
-
+            return
         elif position[1] < 0:
             self.position = (self.position[0], self.size_board_squares)
-
-        elif self.position[0] < self.size_board_squares-1:
-            self.position = (0, self.position[1])
-
-        elif self.position[1] < self.size_board_squares-1:
-            self.position = (self.size_board_squares, 0)"""
+            return
+        elif self.position[0] > self.size_board_squares-1:
+            self.position = (-1, self.position[1])
+            return
+        elif self.position[1] > self.size_board_squares-1:
+            self.position = (self.position[0], -1)
+            return
 
         screen.fill('#A9A9A9')
         board.create_board(screen)
 
         print(position)
 
+        # Define as imagens do player
         player_img = []
         for part in range(0, player):
             if part == 0:
@@ -160,6 +166,11 @@ class Player:
                     position = (position[0] - 1, position[1])
                 elif direction == 'LEFT':
                     position = (position[0] + 1, position[1])
+
+            if position[0] > self.size_board_squares-1 or position[1] > self.size_board_squares-1:
+                return
+            if position[0] < 0 or position[1] < 0:
+                return
 
             screen.blit(player_img[i], Game.convert(to_pixels=True,
                                                     square=position,
@@ -227,7 +238,7 @@ game = Game(gamemode=gamemode)
 screen = game.create_window(window_size=(400, 500))
 board = Board(gamemode=gamemode)
 player = Player(gamemode=gamemode)
-clock = 99
+clock = 24
 board.create_board(screen=screen)
 
 
@@ -236,7 +247,6 @@ while True:
     pygame.time.wait(20)
 
     clock += 1
-    print(clock)
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -254,7 +264,7 @@ while True:
             elif key == 80:
                 direction = 'LEFT'
 
-    if clock > 50:
+    if clock > 25:
         clock = 0
         player.move(board=board, direction=direction)
 
