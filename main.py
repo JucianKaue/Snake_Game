@@ -1,4 +1,5 @@
 import pygame
+from random import randint
 
 
 class Game:
@@ -9,6 +10,11 @@ class Game:
         if gamemode not in avaible_gamemodes:
             print('ERROR. Gamemode unavailable.\n',
                   f'Available gamemodes are: {avaible_gamemodes}')
+
+    @staticmethod
+    def lost(player):
+        if player.position in player.player[0][1:]:
+            print('YOU LOST')
 
     @staticmethod
     def convert(to_pixels, square, size_board_pixels, size_board_squares, initial_position_board):
@@ -39,7 +45,7 @@ class Player:
     def __init__(self, gamemode):
         self.position = [5, 5]
         self.direction = 'UP'
-        self.length_player = 6
+        self.length_player = 5
 
         #self.list_directions = ['UP', 'UP', 'UP', 'UP']
         #self.list_positions = [self.position, [self.position[0], self.position[1]+1], [6,5], [5,6]]
@@ -48,7 +54,7 @@ class Player:
 
         for i in range(0, self.length_player):
             print(i)
-            self.player[0].append([self.position[0], self.position[1]])
+            self.player[0].append([self.position[0], self.position[1]+i])
             self.player[1].append(direction)
 
         print(self.player)
@@ -83,7 +89,7 @@ class Player:
                                                    (self.size_squares_pixels, self.size_squares_pixels)),
                 'RIGHT_UP': pygame.transform.scale(pygame.image.load(f"images/{gamemode}/player/middle_curved/left-up.png"),
                                                    (self.size_squares_pixels, self.size_squares_pixels)),
-                'DOWN_DOWN': pygame.transform.scale(pygame.image.load(f"images/{gamemode}/player/middle_curved/left-down.png"),
+                'RIGHT_DOWN': pygame.transform.scale(pygame.image.load(f"images/{gamemode}/player/middle_curved/left-down.png"),
                                                    (self.size_squares_pixels, self.size_squares_pixels)),
                 'UP_RIGHT': pygame.transform.scale(pygame.image.load(f"images/{gamemode}/player/middle_curved/down-right.png"),
                                                    (self.size_squares_pixels, self.size_squares_pixels)),
@@ -105,14 +111,6 @@ class Player:
                                                (self.size_squares_pixels, self.size_squares_pixels))
             }
         }
-
-    def init_player(self, board):
-
-        position_px = Game.convert(to_pixels=True,
-                                   square=self.position,
-                                   initial_position_board=board.board_position,
-                                   size_board_squares=board.size_board_squares,
-                                   size_board_pixels=board.size_board_pixels)
 
     def move(self, board, direction):
 
@@ -143,11 +141,29 @@ class Player:
                         new_list_directions.append(list_directions[i])
             return new_list_directions
 
-        # Confere se a direção recebida é válida
+        """def player_outside(position, size_board):
+            if self.position[0] < 0:
+                return size_board-1, self.position[1]
+            elif self.position[1] < 0:
+                return self.position[0], size_board-1
+            elif self.position[0] > self.size_board_squares - 1:
+                return 0, self.position[1]
+            elif self.position[1] > self.size_board_squares - 1:
+                return self.position[0], 0
+            else:
+                return position"""
+
+        #Confere se a direção recebida é válida
         available_directions = ['UP', 'DOWN', 'RIGHT', 'LEFT']
         if direction not in available_directions:
             print("DIREÇÃO INVÁLIDA.")
             return False
+
+        if direction == 'UP' and self.direction == 'DOWN': direction = self.direction
+        if direction == 'DOWN' and self.direction == 'UP': direction = self.direction
+        if direction == 'RIGHT' and self.direction == 'LEFT': direction = self.direction
+        if direction == 'LEFT' and self.direction == 'RIGHT': direction = self.direction
+
 
         # Create the player list positions
         if direction == 'UP':
@@ -165,7 +181,6 @@ class Player:
                                                            old_direction=self.direction,
                                                            list_directions=self.player[1])
         self.direction = direction
-        print(self.player)
 
 
         # Create the player list
@@ -191,7 +206,13 @@ class Player:
                                                     )
                         )
 
-            pygame.display.update()
+        if board.target_position == position:
+            board.create_target(screen=screen, player_positions=self.player[0], change=True)
+            self.add_part()
+
+        pygame.display.update()
+
+        return self.player[0]
 
 
         """# atualiza a nova posição do player baseado na direção recebida
@@ -270,6 +291,10 @@ class Player:
         self.list_positions = []
         return direction"""
 
+    def add_part(self):
+        self.length_player += 1
+        self.player[0].append([])
+        self.player[1].append(self.position)
 
 class Board:
     def __init__(self, gamemode):
@@ -281,6 +306,12 @@ class Board:
 
         self.board_img = [pygame.image.load(f"images/{gamemode}/board/board-dark.png"),
                           pygame.image.load(f"images/{gamemode}/board/board-light.png")]
+
+        self.target_position = ()
+        self.target_img = pygame.transform.scale(
+            pygame.image.load(f"images/{gamemode}/board/target.png"), (self.size_squares_pixels, self.size_squares_pixels)
+        )
+
 
     def create_board(self, screen):
 
@@ -313,6 +344,22 @@ class Board:
 
         return squares_board
 
+    def create_target(self, screen, player_positions=[], change=False):
+        if change:
+            while True:
+                self.target_position = (randint(0, self.size_board_squares-1), randint(0, self.size_board_squares-1))
+                if self.target_position not in player_positions:
+                    break
+
+        screen.blit(self.target_img, (Game.convert(to_pixels=True,
+                                                   square=self.target_position,
+                                                   initial_position_board=board.board_position,
+                                                   size_board_squares=board.size_board_squares,
+                                                   size_board_pixels=board.size_board_pixels
+                                                   )))
+        pygame.display.update()
+        return self.target_position
+
 
 gamemode = "city"
 
@@ -322,18 +369,21 @@ gamemode = "city"
 direction = 'UP'
 
 game = Game(gamemode=gamemode)
-screen = game.create_window(window_size=(400, 500))
 board = Board(gamemode=gamemode)
 player = Player(gamemode=gamemode)
-clock = 24
+
+screen = game.create_window(window_size=(400, 500))
+
 board.create_board(screen=screen)
+board.create_target(screen=screen, change=True)
 
-
-
+clock = 24
 while True:
     pygame.time.wait(20)
 
     clock += 1
+
+    game.lost(player)
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -351,8 +401,12 @@ while True:
             elif key == 80:
                 direction = 'LEFT'
 
-    if clock > 50:
+    if clock > 15:
         clock = 0
-        player.move(board=board, direction=direction)
+        player_positions = player.move(board=board, direction=direction)
+        target_position = board.create_target(screen=screen, change=False, player_positions=player_positions)
+        pygame.display.update()
+
+
 
 
