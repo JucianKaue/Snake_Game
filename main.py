@@ -40,7 +40,7 @@ class Player:
         self.position = [5, 5]
         self.player_length = 2
         self.direction = ''
-        self.list_positions = []
+        self.list_positions = [self.position, [self.position[0], self.position[1]+1]]
 
         self.size_board_pixels = 350
         self.size_board_squares = 10
@@ -124,14 +124,15 @@ class Player:
         elif direction == 'LEFT':
             self.position = (self.position[0] - 1, self.position[1])
 
-        player = self.player_length
         position = self.position
+        player = self.player_length
+
 
         # confere se o player esté dentro do tabuleiro
-        if position[0] < 0:
+        if self.position[0] < 0:
             self.position = (self.size_board_squares, self.position[1])
             return
-        elif position[1] < 0:
+        elif self.position[1] < 0:
             self.position = (self.position[0], self.size_board_squares)
             return
         elif self.position[0] > self.size_board_squares-1:
@@ -144,34 +145,40 @@ class Player:
         screen.fill('#A9A9A9')
         board.create_board(screen)
 
-        print(position)
+        self.list_positions = [position]
 
         # Define as imagens do player
         player_img = []
-        for part in range(0, player):
-            if part == 0:
+        for i in range(0, player):
+            if i == 0:
                 player_img.append(self.images['First'][f'{direction}'])
-            elif part == player-1:
+            elif i == player-1:
                 player_img.append(self.images['Last'][f'{direction}'])
             else:
                 player_img.append(self.images['Middle'][f'{direction}'])
 
-        for i in range(0, len(player_img)):
+        # Define the position of players parts
             if i != 0:
                 if direction == 'UP':
                     position = (position[0], position[1] + 1)
+                    self.list_positions.append(position)
                 elif direction == 'DOWN':
                     position = (position[0], position[1] - 1)
+                    self.list_positions.append(position)
                 elif direction == 'RIGHT':
                     position = (position[0] - 1, position[1])
+                    self.list_positions.append(position)
                 elif direction == 'LEFT':
                     position = (position[0] + 1, position[1])
+                    self.list_positions.append(position)
 
+        # Don't show images when the image is outside the board
             if position[0] > self.size_board_squares-1 or position[1] > self.size_board_squares-1:
                 return
             if position[0] < 0 or position[1] < 0:
                 return
 
+        # Show the image in the screen
             screen.blit(player_img[i], Game.convert(to_pixels=True,
                                                     square=position,
                                                     initial_position_board=board.board_position,
@@ -179,8 +186,9 @@ class Player:
                                                     size_board_pixels=board.size_board_pixels
                                                     )
                         )
-
             pygame.display.update()
+        print(self.list_positions)
+        self.list_positions = []
         return direction
 
 
