@@ -14,7 +14,9 @@ class Game:
     @staticmethod
     def lost(player):
         if player.position in player.player[0][1:]:
-            print('YOU LOST')
+            return True
+        else:
+            return False
 
     @staticmethod
     def convert(to_pixels, square, size_board_pixels, size_board_squares, initial_position_board):
@@ -153,19 +155,22 @@ class Player:
             else:
                 return position"""
 
+
+
         #Confere se a direção recebida é válida
         available_directions = ['UP', 'DOWN', 'RIGHT', 'LEFT']
         if direction not in available_directions:
             print("DIREÇÃO INVÁLIDA.")
             return False
 
+        old_direction = direction
         if direction == 'UP' and self.direction == 'DOWN': direction = self.direction
         if direction == 'DOWN' and self.direction == 'UP': direction = self.direction
         if direction == 'RIGHT' and self.direction == 'LEFT': direction = self.direction
         if direction == 'LEFT' and self.direction == 'RIGHT': direction = self.direction
 
-
         # Create the player list positions
+        position = ()
         if direction == 'UP':
             position = (self.position[0], self.position[1] - 1)
         elif direction == 'DOWN':
@@ -175,13 +180,27 @@ class Player:
         elif direction == 'LEFT':
             position = (self.position[0] - 1, self.position[1])
 
-        self.position = position
+        print(position)
+        if position[0] < 0:
+            self.position = (self.size_board_squares, self.position[1])
+            return
+        elif position[1] < 0:
+            self.position = (self.position[0], self.size_board_squares)
+            return
+        elif position[0] > self.size_board_squares-1:
+            self.position = (-1, self.position[1])
+            return
+        elif position[1] > self.size_board_squares-1:
+            self.position = (self.position[0], -1)
+            return
+        else:
+            self.position = position
+        
         self.player[0] = actualize_player_positions(position, self.player[0])
         self.player[1] = actualize_player_directions(new_direction=direction,
                                                            old_direction=self.direction,
                                                            list_directions=self.player[1])
         self.direction = direction
-
 
         # Create the player list
         images_player = []
@@ -192,7 +211,6 @@ class Player:
                 images_player.append(self.images['Last'][f'{self.player[1][i]}'])
             else:
                 images_player.append(self.images['Middle'][f'{self.player[1][i]}'])
-
 
         screen.fill('#A9A9A9')
         board.create_board(screen)
@@ -214,83 +232,6 @@ class Player:
 
         return self.player[0]
 
-
-        """# atualiza a nova posição do player baseado na direção recebida
-        if direction == 'UP':
-            self.position = (self.position[0], self.position[1] - 1)
-        elif direction == 'DOWN':
-            self.position = (self.position[0], self.position[1] + 1)
-        elif direction == 'RIGHT':
-            self.position = (self.position[0] + 1, self.position[1])
-        elif direction == 'LEFT':
-            self.position = (self.position[0] - 1, self.position[1])
-
-        position = self.position
-        player = self.player_length
-
-        # confere se o player esté dentro do tabuleiro
-        if self.position[0] < 0:
-            self.position = (self.size_board_squares, self.position[1])
-            return
-        elif self.position[1] < 0:
-            self.position = (self.position[0], self.size_board_squares)
-            return
-        elif self.position[0] > self.size_board_squares - 1:
-            self.position = (-1, self.position[1])
-            return
-        elif self.position[1] > self.size_board_squares - 1:
-            self.position = (self.position[0], -1)
-            return
-
-        screen.fill('#A9A9A9')
-        board.create_board(screen)
-
-        self.list_positions = [position]
-
-        # Define as imagens do player
-        player_img = []
-        for i in range(0, player):
-            if i == 0:
-                player_img.append(self.images['First'][f'{direction}'])
-            elif i == player - 1:
-                player_img.append(self.images['Last'][f'{direction}'])
-            else:
-                player_img.append(self.images['Middle'][f'{direction}'])
-
-            # Define the position of players parts
-            if i != 0:
-                if direction == 'UP':
-                    position = (position[0], position[1] + 1)
-                    self.list_positions.append(position)
-                elif direction == 'DOWN':
-                    position = (position[0], position[1] - 1)
-                    self.list_positions.append(position)
-                elif direction == 'RIGHT':
-                    position = (position[0] - 1, position[1])
-                    self.list_positions.append(position)
-                elif direction == 'LEFT':
-                    position = (position[0] + 1, position[1])
-                    self.list_positions.append(position)
-
-            # Don't show images when the image is outside the board
-            if position[0] > self.size_board_squares - 1 or position[1] > self.size_board_squares - 1:
-                return
-            if position[0] < 0 or position[1] < 0:
-                return
-
-            # Show the image in the screen
-            screen.blit(player_img[i], Game.convert(to_pixels=True,
-                                                    square=position,
-                                                    initial_position_board=board.board_position,
-                                                    size_board_squares=board.size_board_squares,
-                                                    size_board_pixels=board.size_board_pixels
-                                                    )
-                        )
-            pygame.display.update()
-        print(self.list_positions)
-        self.list_positions = []
-        return direction"""
-
     def add_part(self):
         self.length_player += 1
         self.player[0].append([])
@@ -311,7 +252,6 @@ class Board:
         self.target_img = pygame.transform.scale(
             pygame.image.load(f"images/{gamemode}/board/target.png"), (self.size_squares_pixels, self.size_squares_pixels)
         )
-
 
     def create_board(self, screen):
 
@@ -361,6 +301,7 @@ class Board:
         return self.target_position
 
 
+
 gamemode = "city"
 
 #initialize game
@@ -406,6 +347,11 @@ while True:
         player_positions = player.move(board=board, direction=direction)
         target_position = board.create_target(screen=screen, change=False, player_positions=player_positions)
         pygame.display.update()
+
+        if game.lost(player):
+            break
+
+
 
 
 
