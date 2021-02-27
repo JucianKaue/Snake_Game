@@ -120,11 +120,14 @@ class Player:
                                                (self.size_squares_pixels, self.size_squares_pixels))
             }
         }
-        self.lost_img = pygame.image.load('images/city/player/lost_background.jpg')
+        self.lost_img = pygame.image.load(f'images/{gamemode}/player/lost_background.jpg')
+        self.score_board = pygame.image.load(f"images/{gamemode}/game/score_board.png")
 
     def move(self, board, direction):
         def actualize_score(score):
-            Game.create_text(f'{score}', (300, 420), ('mvboli', 35, (0, 0, 0)))
+            screen.blit(self.score_board, (240, 425))
+            screen.blit(pygame.transform.scale(board.target_img, (50, 50)), (240, 421))
+            Game.create_text(f'{score}', (292, 426), ('mvboli', 30, (0, 0, 0)))
 
         def actualize_player_positions(position, list_positions):
             new_list_positions = [position]  # primeira posição do player atualizada
@@ -153,7 +156,7 @@ class Player:
                         new_list_directions.append(list_directions[i])
             return new_list_directions
 
-        #Confere se a direção recebida é válida
+        # Confere se a direção recebida é válida
         available_directions = ['UP', 'DOWN', 'RIGHT', 'LEFT']
         if direction not in available_directions:
             print("DIREÇÃO INVÁLIDA.")
@@ -221,8 +224,8 @@ class Player:
         if board.target_position == position:
             board.create_target(screen=screen, player_positions=self.player[0], change=True)
             self.add_part()
-            actualize_score(self.score)
 
+        actualize_score(self.score)
         pygame.display.update()
 
         return self.player[0]
