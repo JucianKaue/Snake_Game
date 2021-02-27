@@ -74,53 +74,76 @@ class Player:
 
         self.images = {
             'First': {
-                'RIGHT': pygame.transform.scale(pygame.image.load(f'images/{gamemode}/player/first/right.png'),
+                'UP': pygame.transform.scale(pygame.image.load(f'images/{gamemode}/player/first.png'),
+                    (self.size_squares_pixels, self.size_squares_pixels)),
+                'LEFT': pygame.transform.scale(pygame.transform.rotate(
+                    pygame.image.load(f'images/{gamemode}/player/first.png'), 90),
+                    (self.size_squares_pixels, self.size_squares_pixels)),
+                'DOWN': pygame.transform.scale(pygame.transform.rotate(
+                    pygame.image.load(f"images/{gamemode}/player/first.png"), 180),
+                    (self.size_squares_pixels, self.size_squares_pixels)),
+                'RIGHT': pygame.transform.scale(pygame.transform.rotate(
+                            pygame.image.load(f"images/{gamemode}/player/first.png"), 270),
                                                (self.size_squares_pixels, self.size_squares_pixels)),
-                'LEFT': pygame.transform.scale(pygame.image.load(f"images/{gamemode}/player/first/left.png"),
-                                               (self.size_squares_pixels, self.size_squares_pixels)),
-                'UP': pygame.transform.scale(pygame.image.load(f"images/{gamemode}/player/first/up.png"),
-                                               (self.size_squares_pixels, self.size_squares_pixels)),
-                'DOWN': pygame.transform.scale(pygame.image.load(f"images/{gamemode}/player/first/down.png"),
-                                               (self.size_squares_pixels, self.size_squares_pixels))
             },
             'Middle': {
-                'RIGHT': pygame.transform.scale(pygame.image.load(f"images/{gamemode}/player/middle/right.png"),
-                                               (self.size_squares_pixels, self.size_squares_pixels)),
-                'LEFT': pygame.transform.scale(pygame.image.load(f"images/{gamemode}/player/middle/left.png"),
-                                               (self.size_squares_pixels, self.size_squares_pixels)),
-                'UP': pygame.transform.scale(pygame.image.load(f"images/{gamemode}/player/middle/up.png"),
-                                               (self.size_squares_pixels, self.size_squares_pixels)),
-                'DOWN': pygame.transform.scale(pygame.image.load(f"images/{gamemode}/player/middle/down.png"),
-                                               (self.size_squares_pixels, self.size_squares_pixels)),
-                'LEFT_UP': pygame.transform.scale(pygame.image.load(f"images/{gamemode}/player/middle_curved/right-up.png"),
-                                                   (self.size_squares_pixels, self.size_squares_pixels)),
-                'LEFT_DOWN': pygame.transform.scale(pygame.image.load(f"images/{gamemode}/player/middle_curved/right-down.png"),
-                                                   (self.size_squares_pixels, self.size_squares_pixels)),
-                'RIGHT_UP': pygame.transform.scale(pygame.image.load(f"images/{gamemode}/player/middle_curved/left-up.png"),
-                                                   (self.size_squares_pixels, self.size_squares_pixels)),
-                'RIGHT_DOWN': pygame.transform.scale(pygame.image.load(f"images/{gamemode}/player/middle_curved/left-down.png"),
-                                                   (self.size_squares_pixels, self.size_squares_pixels)),
-                'UP_RIGHT': pygame.transform.scale(pygame.image.load(f"images/{gamemode}/player/middle_curved/down-right.png"),
-                                                   (self.size_squares_pixels, self.size_squares_pixels)),
-                'UP_LEFT': pygame.transform.scale(pygame.image.load(f"images/{gamemode}/player/middle_curved/down-left.png"),
-                                                   (self.size_squares_pixels, self.size_squares_pixels)),
-                'DOWN_RIGHT': pygame.transform.scale(pygame.image.load(f"images/{gamemode}/player/middle_curved/up-right.png"),
-                                                   (self.size_squares_pixels, self.size_squares_pixels)),
-                'DOWN_LEFT': pygame.transform.scale(pygame.image.load(f"images/{gamemode}/player/middle_curved/up-left.png"),
-                                                   (self.size_squares_pixels, self.size_squares_pixels))
+                'UP': pygame.transform.scale(pygame.image.load(f"images/{gamemode}/player/middle.png"),
+                                             (self.size_squares_pixels, self.size_squares_pixels)),
+                'LEFT': pygame.transform.scale(pygame.transform.rotate(
+                    pygame.image.load(f"images/{gamemode}/player/middle.png"), 90),
+                    (self.size_squares_pixels, self.size_squares_pixels)),
+                'DOWN': pygame.transform.scale(pygame.transform.rotate(
+                    pygame.image.load(f"images/{gamemode}/player/middle.png"), 180),
+                    (self.size_squares_pixels, self.size_squares_pixels)),
+                'RIGHT': pygame.transform.scale(pygame.transform.rotate(
+                    pygame.image.load(f"images/{gamemode}/player/middle.png"), 270),
+                    (self.size_squares_pixels, self.size_squares_pixels)),
+
+                'UP_LEFT': pygame.transform.scale(
+                    pygame.image.load(f"images/{gamemode}/player/middle_curved.png"),
+                    (self.size_squares_pixels, self.size_squares_pixels)),
+                'LEFT_DOWN': pygame.transform.scale(pygame.transform.rotate(
+                     pygame.image.load(f"images/{gamemode}/player/middle_curved.png"), 90),
+                    (self.size_squares_pixels, self.size_squares_pixels)),
+                'DOWN_RIGHT': pygame.transform.scale(pygame.transform.rotate(
+                     pygame.image.load(f"images/{gamemode}/player/middle_curved.png"), 180),
+                    (self.size_squares_pixels, self.size_squares_pixels)),
+                'RIGHT_UP': pygame.transform.scale(pygame.transform.rotate(
+                     pygame.image.load(f"images/{gamemode}/player/middle_curved.png"), 270),
+                    (self.size_squares_pixels, self.size_squares_pixels)),
+
+                'UP_RIGHT': pygame.transform.scale(pygame.transform.flip(
+                    pygame.image.load(f"images/{gamemode}/player/middle_curved.png"), True, False),
+                    (self.size_squares_pixels, self.size_squares_pixels)),
+                'LEFT_UP': pygame.transform.scale(pygame.transform.rotate(pygame.transform.flip(
+                    pygame.image.load(f"images/{gamemode}/player/middle_curved.png"), True, False), 90),
+                    (self.size_squares_pixels, self.size_squares_pixels)),
+                'DOWN_LEFT': pygame.transform.scale(pygame.transform.rotate(pygame.transform.flip(
+                    pygame.image.load(f"images/{gamemode}/player/middle_curved.png"), True, False), 180),
+                    (self.size_squares_pixels, self.size_squares_pixels)),
+                'RIGHT_DOWN': pygame.transform.scale(pygame.transform.rotate(pygame.transform.flip(
+                    pygame.image.load(f"images/{gamemode}/player/middle_curved.png"), True, False), 270),
+                    (self.size_squares_pixels, self.size_squares_pixels)),
+
+
+
+
             },
             'Last': {
-                'RIGHT': pygame.transform.scale(pygame.image.load(f"images/{gamemode}/player/last/right.png"),
-                                               (self.size_squares_pixels, self.size_squares_pixels)),
-                'LEFT': pygame.transform.scale(pygame.image.load(f"images/{gamemode}/player/last/left.png"),
-                                               (self.size_squares_pixels, self.size_squares_pixels)),
-                'UP': pygame.transform.scale(pygame.image.load(f"images/{gamemode}/player/last/up.png"),
-                                               (self.size_squares_pixels, self.size_squares_pixels)),
-                'DOWN': pygame.transform.scale(pygame.image.load(f"images/{gamemode}/player/last/down.png"),
-                                               (self.size_squares_pixels, self.size_squares_pixels))
+                'UP': pygame.transform.scale(pygame.image.load(f"images/{gamemode}/player/last.png"),
+                                             (self.size_squares_pixels, self.size_squares_pixels)),
+                'LEFT': pygame.transform.scale(pygame.transform.rotate(
+                    pygame.image.load(f"images/{gamemode}/player/last.png"), 90),
+                    (self.size_squares_pixels, self.size_squares_pixels)),
+                'DOWN': pygame.transform.scale(pygame.transform.rotate(
+                    pygame.image.load(f"images/{gamemode}/player/last.png"), 180),
+                    (self.size_squares_pixels, self.size_squares_pixels)),
+                'RIGHT': pygame.transform.scale(pygame.transform.rotate(
+                    pygame.image.load(f"images/{gamemode}/player/last.png"), 270),
+                    (self.size_squares_pixels, self.size_squares_pixels)),
             }
         }
-        self.lost_img = pygame.image.load(f'images/{gamemode}/player/lost_background.jpg')
+        self.lost_img = pygame.image.load(f'images/{gamemode}/lost/lost_background.jpg')
         self.score_board = pygame.image.load(f"images/{gamemode}/game/score_board.png")
 
     def move(self, board, direction):
