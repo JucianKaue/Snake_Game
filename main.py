@@ -42,24 +42,31 @@ class Game:
         except:
             print("ERROR! WINDOW_SIZE needs to be a tuple.")
 
+    @staticmethod
+    def create_text(text, position, font):
+        font_name = font[0]
+        font_size = font[1]
+        font_color = font[2]
+
+        pygame.font.init()
+        font = pygame.font.SysFont(font_name, font_size, font_color)
+        screen.blit(font.render(text, True, font_color), position)
+        pygame.display.update()
+        pygame.font.quit()
+
 
 class Player:
     def __init__(self, gamemode):
         self.position = [5, 5]
         self.direction = 'UP'
-        self.length_player = 5
-
-        #self.list_directions = ['UP', 'UP', 'UP', 'UP']
-        #self.list_positions = [self.position, [self.position[0], self.position[1]+1], [6,5], [5,6]]
-
-        self.player = [[],[]]
+        self.length_player = 3
+        self.score = self.length_player - 2
+        self.player = [[], []]
 
         for i in range(0, self.length_player):
             print(i)
             self.player[0].append([self.position[0], self.position[1]+i])
-            self.player[1].append(direction)
-
-        print(self.player)
+            self.player[1].append(self.direction)
 
         self.size_board_pixels = 350
         self.size_board_squares = 10
@@ -113,8 +120,11 @@ class Player:
                                                (self.size_squares_pixels, self.size_squares_pixels))
             }
         }
+        self.lost_img = pygame.image.load('images/city/player/lost_background.jpg')
 
     def move(self, board, direction):
+        def actualize_score(score):
+            Game.create_text(f'{score}', (300, 420), ('mvboli', 35, (0, 0, 0)))
 
         def actualize_player_positions(position, list_positions):
             new_list_positions = [position]  # primeira posição do player atualizada
@@ -143,20 +153,6 @@ class Player:
                         new_list_directions.append(list_directions[i])
             return new_list_directions
 
-        """def player_outside(position, size_board):
-            if self.position[0] < 0:
-                return size_board-1, self.position[1]
-            elif self.position[1] < 0:
-                return self.position[0], size_board-1
-            elif self.position[0] > self.size_board_squares - 1:
-                return 0, self.position[1]
-            elif self.position[1] > self.size_board_squares - 1:
-                return self.position[0], 0
-            else:
-                return position"""
-
-
-
         #Confere se a direção recebida é válida
         available_directions = ['UP', 'DOWN', 'RIGHT', 'LEFT']
         if direction not in available_directions:
@@ -180,7 +176,6 @@ class Player:
         elif direction == 'LEFT':
             position = (self.position[0] - 1, self.position[1])
 
-        print(position)
         if position[0] < 0:
             self.position = (self.size_board_squares, self.position[1])
             return
@@ -195,7 +190,7 @@ class Player:
             return
         else:
             self.position = position
-        
+
         self.player[0] = actualize_player_positions(position, self.player[0])
         self.player[1] = actualize_player_directions(new_direction=direction,
                                                            old_direction=self.direction,
@@ -212,7 +207,6 @@ class Player:
             else:
                 images_player.append(self.images['Middle'][f'{self.player[1][i]}'])
 
-        screen.fill('#A9A9A9')
         board.create_board(screen)
 
         for i in range(0, len(images_player)):
@@ -227,15 +221,18 @@ class Player:
         if board.target_position == position:
             board.create_target(screen=screen, player_positions=self.player[0], change=True)
             self.add_part()
+            actualize_score(self.score)
 
         pygame.display.update()
 
         return self.player[0]
 
     def add_part(self):
+        self.score += 1
         self.length_player += 1
         self.player[0].append([])
         self.player[1].append(self.position)
+
 
 class Board:
     def __init__(self, gamemode):
@@ -301,58 +298,65 @@ class Board:
         return self.target_position
 
 
-
 gamemode = "city"
 
+
 #initialize game
+def run_game(gamemode):
+    global screen, board
+    # player initial variables
+    direction = 'UP'
 
-# player initial variables
-direction = 'UP'
+    game = Game(gamemode=gamemode)
+    board = Board(gamemode=gamemode)
+    player = Player(gamemode=gamemode)
 
-game = Game(gamemode=gamemode)
-board = Board(gamemode=gamemode)
-player = Player(gamemode=gamemode)
+    screen = game.create_window(window_size=(400, 500))
+    screen.fill("#A9A9A9")
+    board.create_board(screen=screen)
+    board.create_target(screen=screen, change=True)
 
-screen = game.create_window(window_size=(400, 500))
+    game.create_text(text='SNAKE GAME', font=('mvboli', 35, (0, 0, 0)), position=(65, 5))
 
-board.create_board(screen=screen)
-board.create_target(screen=screen, change=True)
+    clock = 24
+    while True:
+        pygame.time.wait(20)
 
-clock = 24
-while True:
-    pygame.time.wait(20)
+        clock += 1
 
-    clock += 1
+        game.lost(player)
 
-    game.lost(player)
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                exit()
 
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            exit()
+            if event.type == pygame.KEYDOWN:
 
-        if event.type == pygame.KEYDOWN:
+                key = pygame.key.get_pressed().index(1)
+                if key == 82:
+                    direction = 'UP'
+                elif key == 81:
+                    direction = 'DOWN'
+                elif key == 79:
+                    direction = 'RIGHT'
+                elif key == 80:
+                    direction = 'LEFT'
 
-            key = pygame.key.get_pressed().index(1)
-            if key == 82:
-                direction = 'UP'
-            elif key == 81:
-                direction = 'DOWN'
-            elif key == 79:
-                direction = 'RIGHT'
-            elif key == 80:
-                direction = 'LEFT'
+        if clock > 15:
+            clock = 0
+            player_positions = player.move(board=board, direction=direction)
+            target_position = board.create_target(screen=screen, change=False, player_positions=player_positions)
+            pygame.display.update()
 
-    if clock > 15:
-        clock = 0
-        player_positions = player.move(board=board, direction=direction)
-        target_position = board.create_target(screen=screen, change=False, player_positions=player_positions)
-        pygame.display.update()
-
-        if game.lost(player):
-            break
-
-
-
-
+            if game.lost(player):
+                pygame.time.wait(500)
+                screen.fill('#000000')
+                game.create_text('GAME OVER', (68, 25), ('rubik', 45, (200, 200, 200)))
+                screen.blit(player.lost_img, (25, 100))
+                pygame.display.update()
+                pygame.time.wait(3000)
+                return False
 
 
+if not run_game(gamemode):
+    quit()
