@@ -4,15 +4,15 @@ from random import randint
 
 class Game:
     def __init__(self, gamemode):
-        self.gamemode = gamemode
-
-        avaible_gamemodes = ["city"]
-        if gamemode not in avaible_gamemodes:
+        avaible_gamemodes = ["city", "truck", "correios"]
+        if gamemode not in avaible_gamemodes:       # Verifica se o modo de jogo é válido.
             print('ERROR. Gamemode unavailable.\n',
                   f'Available gamemodes are: {avaible_gamemodes}')
+        else:
+            self.gamemode = gamemode
 
     @staticmethod
-    def lost(player):
+    def lost(player):   # Verifica se o jogador perdeu
         if player.position in player.player[0][1:]:
             return True
         else:
@@ -27,7 +27,7 @@ class Game:
             return (square[0]-initial_position_board[0])//size_squares, (square[1]-initial_position_board[1])//size_squares
 
     @staticmethod
-    def create_window(window_size=(), bg_color='000000'):
+    def create_window(window_size=()):
         try:
             pygame.init()
         except:
@@ -72,7 +72,7 @@ class Player:
         self.size_board_squares = 10
         self.size_squares_pixels = self.size_board_pixels // self.size_board_squares
 
-        default_directory_img = f'../game/images/{gamemode}/player'
+        default_directory_img = f'game/images/{gamemode}/player'    # Define um diretório padrão para as imagens do jogador
         self.images = {
             'First': {
                 'UP': pygame.transform.scale(pygame.image.load(f'{default_directory_img}/first.png'),
@@ -140,8 +140,8 @@ class Player:
                     (self.size_squares_pixels, self.size_squares_pixels)),
             }
         }
-        self.lost_img = pygame.image.load(f'../game/images/{gamemode}/game/lost_background.jpg')
-        self.score_board = pygame.image.load(f"../game/images/{gamemode}/game/score_board.png")
+        self.lost_img = pygame.image.load(f'game/images/{gamemode}/game/lost_background.jpg')
+        self.score_board = pygame.image.load(f"game/images/{gamemode}/game/score_board.png")
 
     def move(self, board, direction):
         def actualize_score(score):
@@ -160,7 +160,6 @@ class Player:
             for i in range(0, len(list_directions)-1):  # adiciona todas as posições atuais do player, menos a ultima
                 # last part
                 if i == len(list_directions)-2:
-                    print(i)
                     if '_' in list_directions[i]:
                         direct = list_directions[i].split('_')[1]
                         list_directions.pop(i)
@@ -180,9 +179,9 @@ class Player:
         available_directions = ['UP', 'DOWN', 'RIGHT', 'LEFT']
         if direction not in available_directions:
             print("DIREÇÃO INVÁLIDA.")
-            return False
+            return
 
-        old_direction = direction
+        # atualiza a direção do player
         if direction == 'UP' and self.direction == 'DOWN': direction = self.direction
         if direction == 'DOWN' and self.direction == 'UP': direction = self.direction
         if direction == 'RIGHT' and self.direction == 'LEFT': direction = self.direction
@@ -199,28 +198,29 @@ class Player:
         elif direction == 'LEFT':
             position = (self.position[0] - 1, self.position[1])
 
+        # Atualiza a nova casa inicial do player
         if position[0] < 0:
-            self.position = (self.size_board_squares, self.position[1])
-            return
+            self.position = (self.size_board_squares-1, self.position[1])
+
         elif position[1] < 0:
-            self.position = (self.position[0], self.size_board_squares)
-            return
+            self.position = (self.position[0], self.size_board_squares-1)
         elif position[0] > self.size_board_squares-1:
-            self.position = (-1, self.position[1])
-            return
+            self.position = (0, self.position[1])
+
         elif position[1] > self.size_board_squares-1:
-            self.position = (self.position[0], -1)
-            return
+            self.position = (self.position[0], 0)
+
         else:
             self.position = position
 
-        self.player[0] = actualize_player_positions(position, self.player[0])
+        # Atualiza as listas de casas e direções do jogador
+        self.player[0] = actualize_player_positions(self.position, self.player[0])
         self.player[1] = actualize_player_directions(new_direction=direction,
                                                            old_direction=self.direction,
                                                            list_directions=self.player[1])
         self.direction = direction
 
-        # Create the player list
+        # Create the player images list
         images_player = []
         for i in range(0, len(self.player[0])):
             if i == 0:
@@ -230,8 +230,10 @@ class Player:
             else:
                 images_player.append(self.images['Middle'][f'{self.player[1][i]}'])
 
+        # Apaga a o jogador da tela
         board.create_board(screen)
 
+        # Mostra o jogador na sua nova posição
         for i in range(0, len(images_player)):
             screen.blit(images_player[i], Game.convert(to_pixels=True,
                                                     square=self.player[0][i],
@@ -241,6 +243,7 @@ class Player:
                                                     )
                         )
 
+        # Verifica se o jogador está em um alvo
         if board.target_position == position:
             board.create_target(screen=screen, player_positions=self.player[0], change=True)
             self.add_part()
@@ -265,52 +268,43 @@ class Board:
         self.size_board_squares = 10
         self.size_squares_pixels = self.size_board_pixels//self.size_board_squares
 
-        self.board_img = [pygame.image.load(f"../game/images/{gamemode}/board/board-dark.png"),
-                          pygame.image.load(f"../game/images/{gamemode}/board/board-light.png")]
+        self.board_img = [pygame.image.load(f"game/images/{gamemode}/board/board-dark.png"),
+                          pygame.image.load(f"game/images/{gamemode}/board/board-light.png")]
 
         self.target_position = ()
         self.target_img = pygame.transform.scale(
-            pygame.image.load(f"../game/images/{gamemode}/board/target.png"), (self.size_squares_pixels, self.size_squares_pixels)
+            pygame.image.load(f"game/images/{gamemode}/board/target.png"), (self.size_squares_pixels, self.size_squares_pixels)
         )
 
     def create_board(self, screen):
-
         self.board_img = [pygame.transform.scale(self.board_img[0], (self.size_squares_pixels, self.size_squares_pixels)),
                           pygame.transform.scale(self.board_img[1], (self.size_squares_pixels, self.size_squares_pixels))]
 
         initial_position = self.board_position
         position = [self.board_position[0], self.board_position[1]]
 
+        # define as casas do tabuleiro
         img = 0
         for x in range(0, self.size_board_squares):
             for y in range(0, self.size_board_squares):
-
                 screen.blit(self.board_img[img % 2], position)
-
                 img += 1
                 position[0] += self.size_squares_pixels
 
             img += 1
-
             position[0] = initial_position[0]
             position[1] += self.size_squares_pixels
-
         pygame.display.update()
 
-        squares_board = []
-        for x in range(0, self.size_board_squares):
-            for y in range(0, self.size_board_squares):
-                squares_board.append((x, y))
-
-        return squares_board
-
     def create_target(self, screen, player_positions=[], change=False):
+        # Verifica se é necessário mudar a posição do alvo
         if change:
             while True:
                 self.target_position = (randint(0, self.size_board_squares-1), randint(0, self.size_board_squares-1))
                 if self.target_position not in player_positions:
                     break
 
+        # mostra na tela o alto na nova posição
         screen.blit(self.target_img, (Game.convert(to_pixels=True,
                                                    square=self.target_position,
                                                    initial_position_board=board.board_position,
@@ -324,7 +318,8 @@ class Board:
 # initialize game
 def run_game(gamemode):
     global screen, board
-    # player initial variables
+
+    # Variaveis iniciais
     direction = 'UP'
 
     game = Game(gamemode=gamemode)
@@ -338,10 +333,9 @@ def run_game(gamemode):
 
     game.create_text(text='SNAKE GAME', font=('mvboli', 35, (0, 0, 0)), position=(65, 5))
 
-    clock = 24
+    clock = 24  # Essa variavel é usada como contador para determinar a movimentação do player.
     while True:
         pygame.time.wait(20)
-
         clock += 1
 
         game.lost(player)
@@ -366,20 +360,20 @@ def run_game(gamemode):
             if clock > 90:
                 clock = 0
                 player_positions = player.move(board=board, direction=direction)
-                target_position = board.create_target(screen=screen, change=False, player_positions=player_positions)
+                board.create_target(screen=screen, change=False, player_positions=player_positions)
                 pygame.display.update()
         else:
             if clock > 15:
                 clock = 0
                 player_positions = player.move(board=board, direction=direction)
-                target_position = board.create_target(screen=screen, change=False, player_positions=player_positions)
+                board.create_target(screen=screen, change=False, player_positions=player_positions)
                 pygame.display.update()
 
-            if game.lost(player):
-                pygame.time.wait(500)
-                screen.fill('#000000')
-                game.create_text('GAME OVER', (68, 25), ('rubik', 45, (200, 200, 200)))
-                screen.blit(player.lost_img, (25, 100))
-                pygame.display.update()
-                pygame.time.wait(3000)
-                return False
+        if game.lost(player):
+            pygame.time.wait(500)
+            screen.fill('#000000')
+            game.create_text('GAME OVER', (68, 25), ('rubik', 45, (200, 200, 200)))
+            screen.blit(player.lost_img, (25, 100))
+            pygame.display.update()
+            pygame.time.wait(3000)
+            return False
