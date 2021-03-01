@@ -43,13 +43,10 @@ while True:
             mouse_position = pygame.mouse.get_pos()
             # Se for no primeiro retângulo
             if (mouse_position[0] > 25 and mouse_position[1] > 100) and (mouse_position[0] < 375 and mouse_position[1] < 200):
-                if run_game('snake'):
-                    quit()
+                run_game('snake')
             # Se for no segundo retângulo
             elif (mouse_position[0] > 25 and mouse_position[1] > 210) and (mouse_position[0] < 375 and mouse_position[1] < 310):
-                if run_game('truck'):
-                    quit()
+                run_game('truck')
             # Se for no terceiro retângulo
             elif (mouse_position[0] > 25 and mouse_position[1] > 320) and (mouse_position[0] < 375 and mouse_position[1] < 420):
-                if run_game('correios'):
-                    quit()
+                run_game('correios')
